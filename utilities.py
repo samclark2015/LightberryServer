@@ -3,6 +3,7 @@ from data import Store
 import pickle
 import os
 
+
 def getUserFromLogin(auth0):
     # Handles response from token endpoint
     resp = auth0.authorize_access_token()
@@ -10,6 +11,7 @@ def getUserFromLogin(auth0):
     token = resp['access_token']
 
     return getUserFromToken(token)
+
 
 def getUserFromToken(token):
     url = 'https://samclarkme.auth0.com/userinfo'
@@ -20,6 +22,20 @@ def getUserFromToken(token):
     else:
         print(resp.status_code)
         return None
+
+
+def toEndpoint(device):
+    alexa = device.get('alexa')
+    endpoint = {
+        "endpointId": device.get('deviceId'),
+        "manufacturerName": device.get('manufacturerName'),
+        "friendlyName": device.get('friendlyName'),
+        "description": device.get('description'),
+        "displayCategories": alexa.get('displayCategories'),
+        "cookie": alexa.get('additionalDetails'),
+        "capabilities": alexa.get('capabilities')
+    }
+    return endpoint
 
 
 def loadData(filename):
@@ -34,6 +50,7 @@ def loadData(filename):
         print('New data store.')
         print(error)
     return store
+
 
 def saveData(filename, store):
     try:
