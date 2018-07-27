@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-sm">
+      <header><h1>{% block title %}Your Devices{% endblock %}</h1></header>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm">
+      <ul class="list-group">
+      {% for device in devices %}
+          <li class="list-group-item">
+            <h6 class="align-middle">
+              {{ device.friendlyName }}
+              <span class="badge badge-secondary">{{ 'On' if device.getStatus().name == 'ON' else 'Off' }}</span>
+              <span class="badge badge-secondary">{{ 'Online' if device.isOnline() else 'Offline' }}</span>
+              <form method="post" class="form-inline float-right" action="/link">
+                <input type="hidden" name="method" value="DELETE">
+                <input type="hidden" name="device-id" value="{{ device.deviceId }}">
+                <button type="submit" class="btn btn-sm btn-danger mb-2" id="unlink-{{ device.deviceId }}">Unlink</button>
+              </form>
+            </h6>
+          </li>
+      {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-sm">
+      <form class="float-right" method="post" action="/link">
+        <label for="pairing-code">Pair Device</label>
+        <div class="input-group">
+          <input type="text" class="form-control" name="pairing-code" id="pairing-code" required placeholder="Pairing Code">
+          <div class="input-group-append">
+            <button type="submit" class="btn btn-primary">Link</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

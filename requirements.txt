@@ -1,0 +1,5 @@
+flask
+paho-mqtt
+authlib
+python-dotenv
+six
