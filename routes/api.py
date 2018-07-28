@@ -11,7 +11,6 @@ from utilities import toEndpoint
 from bson import json_util
 
 api = Blueprint('api', __name__, )
-secret = os.getenv('SECRET')
 
 AUTH0_DOMAIN = os.getenv('AUTH0_DOMAIN')
 API_AUDIENCE = os.getenv('AUTH0_AUDIENCE')
