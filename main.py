@@ -2,10 +2,12 @@ import logging
 from datetime import datetime
 
 from flask import Flask
+from flask_cors import CORS
 import json, re, os
 import paho.mqtt.client as mqtt
 
 from db import db
+from routes.admin import admin
 from routes.api import api
 
 from authlib.flask.client import OAuth
@@ -15,6 +17,7 @@ mqtt_port = int(os.getenv('MQTT_PORT'))
 secret = os.getenv('SECRET')
 
 app = Flask(__name__)
+CORS(app)
 oauth = OAuth(app)
 app.secret_key = secret
 
@@ -23,13 +26,14 @@ logger = logging.getLogger('lightberry_server')
 logger.setLevel(logging.DEBUG)
 # logging.basicConfig(format='%(asctime)s %(message)s', filename='/var/log/lightberry.log')
 
+
 auth0 = oauth.register(
     'auth0',
     client_id=os.getenv('AUTH0_CLIENT_ID'),
     client_secret=os.getenv('AUTH0_CLIENT_SECRET'),
-    api_base_url=os.getenv('AUTH0_API_BASE_URL'),
-    access_token_url=os.getenv('AUTH0_ACCESS_TOKEN_URL'),
-    authorize_url=os.getenv('AUTH0_AUTHORIZE_URL'),
+    api_base_url='https://{}'.format(os.getenv('AUTH0_DOMAIN')),
+    access_token_url='https://{}/oauth/token'.format(os.getenv('AUTH0_DOMAIN')),
+    authorize_url='https://{}/authorize'.format(os.getenv('AUTH0_DOMAIN')),
     client_kwargs={
         'scope': 'openid profile',
     },
@@ -37,7 +41,8 @@ auth0 = oauth.register(
 
 # store = loadData('data.pkl')
 
-app.register_blueprint(api)
+app.register_blueprint(api, url_prefix='/api')
+app.register_blueprint(admin, url_prefix='/api/admin')
 
 mqttc = mqtt.Client()
 
@@ -52,6 +57,7 @@ def getClientId(topic):
 def handleStatusMessage(mosq, obj, msg):
     deviceId = getClientId(msg.topic)
     payload = msg.payload
+    print(payload)
     db.devices.update_one({'metadata.deviceId': deviceId}, {'$set': {'state': payload}})
 
 

@@ -1,5 +1,9 @@
+bson
 flask
+flask-cors
 paho-mqtt
 authlib
 python-dotenv
 six
+python-jose-cryptodome
+pymongo

@@ -25,12 +25,13 @@ def getUserFromToken(token):
 
 
 def toEndpoint(device):
-    alexa = device.get('alexa')
+    metadata = device.get('metadata')
+    alexa = metadata.get('alexa')
     endpoint = {
-        "endpointId": device.get('deviceId'),
-        "manufacturerName": device.get('manufacturerName'),
-        "friendlyName": device.get('friendlyName'),
-        "description": device.get('description'),
+        "endpointId": metadata.get('deviceId'),
+        "manufacturerName": metadata.get('manufacturerName'),
+        "friendlyName": metadata.get('friendlyName'),
+        "description": metadata.get('description'),
         "displayCategories": alexa.get('displayCategories'),
         "cookie": alexa.get('additionalDetails'),
         "capabilities": alexa.get('capabilities')

@@ -1,4 +1,8 @@
+import os
 from pymongo import MongoClient
 
-client = MongoClient('192.168.1.3', 27017)
+HOST = os.getenv('DB_HOST')
+PORT = os.getenv('DB_PORT')
+
+client = MongoClient(HOST, int(PORT))
 db = client.lightberry
