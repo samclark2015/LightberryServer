@@ -186,15 +186,15 @@ def device(deviceId, user=None):
     thisDevice = db.devices.find_one({'metadata.deviceId': deviceId})
     if request.method == 'GET':
         return jsonify(
-            state=thisDevice.state
+            state=thisDevice.get('state')
         )
     else:
         content = request.values
-        oldStatus = thisDevice.state
+        oldState = thisDevice.get('state')
         newState = content.get('state')
         # TODO: send MQTT message
-        mqttc.publish('{}/{}')
+        # mqttc.publish('{}/{}')
         return jsonify(
-            previousState=oldStatus,
+            previousState=oldState,
             state=newState
         )
