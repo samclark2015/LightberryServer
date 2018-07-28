@@ -1,14 +1,15 @@
 import json
-import logging
 import os
 from functools import wraps
 from urllib.request import urlopen
 
-from jose import jwt
-from flask import Blueprint, request, jsonify
-from db import db
-from utilities import toEndpoint
 from bson import json_util
+from flask import Blueprint, request, jsonify
+from jose import jwt
+
+from db import db
+from mqtt.client import mqttc
+from utilities import toEndpoint
 
 api = Blueprint('api', __name__, )
 
@@ -172,35 +173,28 @@ def linkDevice(user=None):
     )
 
 
-'''
-@api.route('/api/devices/<deviceId>', methods=['GET'])
-@user_secret
+@api.route('/api/devices/<deviceId>', methods=['GET', 'POST'])
+@requires_auth
 def device(deviceId, user=None):
-    myDevices = [x[1] for x in store.Links if x[0] == user.get('sub')]
+    myDevices = db.users.find_one({'info.sub': user.get('sub')}).get('linkedDevices')
     if deviceId not in myDevices:
-        return jsonify(
-            error='unauthorized'
-        ), 401
+        raise AuthError({
+            "code": "invalid_device",
+            "description": "Device not linked!"
+        }, 401)
 
-    devices = [x for x in store.Devices if x.deviceId == deviceId]
-    if len(devices) < 1:
-        return jsonify(
-            error='device not found'
-        ), 404
-    device = devices[0]
-
+    thisDevice = db.devices.find({'metadata.deviceId': deviceId})
     if request.method == 'GET':
-        status = device.getStatus()
         return jsonify(
-            status=status
+            state=thisDevice.state
         )
     else:
         content = request.values
-        oldStatus = device.getStatus()
-        status = int(content.get('status'))
-        status = device.setStatus(Status(status))
+        oldStatus = thisDevice.state
+        newState = content.get('state')
+        # TODO: send MQTT message
+        mqttc.publish('{}/{}')
         return jsonify(
-            oldStatus=oldStatus,
-            status=status
+            previousState=oldStatus,
+            state=newState
         )
-'''
