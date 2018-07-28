@@ -173,7 +173,7 @@ def linkDevice(user=None):
     )
 
 
-@api.route('/api/devices/<deviceId>', methods=['GET', 'POST'])
+@api.route('/devices/<deviceId>', methods=['GET', 'POST'])
 @requires_auth
 def device(deviceId, user=None):
     myDevices = db.users.find_one({'info.sub': user.get('sub')}).get('linkedDevices')
@@ -183,7 +183,7 @@ def device(deviceId, user=None):
             "description": "Device not linked!"
         }, 401)
 
-    thisDevice = db.devices.find({'metadata.deviceId': deviceId})
+    thisDevice = db.devices.find_one({'metadata.deviceId': deviceId})
     if request.method == 'GET':
         return jsonify(
             state=thisDevice.state
